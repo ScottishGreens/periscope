@@ -1,0 +1,7 @@
+name = Periscope
+description = Periscope on air button.
+core = 7.x
+package = Fields
+
+files[] = periscope.module
+files[] = includes/periscope.admin.inc

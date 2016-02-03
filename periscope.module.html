@@ -1,0 +1,90 @@
+<?php
+
+/**
+ * Implements hook_help().
+ */
+function periscope_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#periscope_onair':
+    case 'admin/config/services/periscope-onair':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output = '<p>' . t('The Periscope On Air Button displays the user live status and username. The special thing about the widget is that it comes to life when you are LIVE!') . '</p>';
+      $output .= '<p>' . t('Clicking the button will open a new window displaying the user profile page. If the user is LIVE when the profile page loads, their broadcast will automatically start playing.') . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function periscope_permission() {
+  $permissions['administer periscope onair'] = array(
+    'title' => t('Administer Periscope On Air Button for Drupal'),
+    'restrict access' => TRUE,
+    'description' => t('Add configuration necessary for Periscope On Air button to function.'),
+  );
+
+  return $permissions;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function periscope_menu() {
+  $items['admin/config/services/periscope-onair'] = array(
+    'title' => 'Periscope On Air Button',
+    'description' => 'Configure Periscope On Air Button for Drupal settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('periscope_admin_settings_form'),
+    'access arguments' => array('administer periscope onair'),
+    'file' => 'includes/periscope.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function periscope_block_info() {
+  $blocks = array();
+  $blocks['periscope_onair_block'] = array(
+    'info' => t('Periscope On Air Button'),
+  );
+  
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function periscope_block_view($delta='') {
+  $block = array();
+  
+  switch($delta) {
+    case 'periscope_onair_block' :
+      $block['content'] = periscope_button_view();
+      break;
+  }
+  
+  return $block;
+}
+
+/**
+ * Custom function to assemble renderable array for block content.
+ * Returns a renderable array with the block content.
+ * @return
+ *   returns a renderable array of block content.
+ */
+function periscope_button_view() {
+
+  // Gather Periscope config settings
+  $periscopeID = variable_get('periscope_onair_periscopeid');
+  $periscopebuttonsize = variable_get('periscope_onair_button_size');
+
+  $block = '<script>window.twttr=function(t,e,r){var n,i=t.getElementsByTagName(e)[0],w=window.twttr||{};return t.getElementById(r)?w:(n=t.createElement(e),n.id=r,n.src="https://platform.twitter.com/widgets.js",i.parentNode.insertBefore(n,i),w._e=[],w.ready=function(t){w._e.push(t)},w)}(document,"script","twitter-wjs")</script><a href="https://www.periscope.tv/' . $periscopeID . '" class="periscope-on-air" data-size="' . $periscopebuttonsize . '">' . $periscopeID . '</a>';
+
+  return $block;
+
+}
